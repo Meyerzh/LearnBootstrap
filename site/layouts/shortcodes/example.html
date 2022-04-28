@@ -1,0 +1,59 @@
+{{- /*
+Usage: `example args`
+
+`args` are all optional and can be one of the following:
+* id: the `div`'s id - default: ""
+* class: any extra class(es) to be added to the `div` - default: ""
+* show_preview: if the preview should be output in the HTML - default: `true`
+* show_markup: if the markup should be output in the HTML - default: `true`
+*/ -}}
+
+{{- $id := .Get "id" -}}
+{{- $class := .Get "class" -}}
+{{- $lang := .Get "lang" | default "html" -}}
+{{- $show_preview := .Get "show_preview" | default true -}}
+{{- $show_markup := .Get "show_markup" | default true -}}
+{{- $input := .Inner -}}
+
+<!-- <nav>
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home"
+            type="button" role="tab" aria-controls="nav-home" aria-selected="true">Preview</button>
+        <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile"
+            type="button" role="tab" aria-controls="nav-profile" aria-selected="false">HTML</button>
+    </div>
+</nav>
+<div class="tab-content" id="nav-tabContent">
+    <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">Preview</div>
+    <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">HTML</div>
+</div> -->
+
+<nav>
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab"
+            data-bs-target="#nav-home-{{ with $class }}{{ . }}{{ end }}" type="button" role="tab"
+            aria-controls="nav-home" aria-selected="true">Preview</button>
+        <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab"
+            data-bs-target="#nav-profile-{{ with $class }}{{ . }}{{ end }}" type="button" role="tab"
+            aria-controls="nav-profile" aria-selected="false">HTML</button>
+    </div>
+</nav>
+
+<div class="tab-content" id="nav-tabContent">
+    <div class="tab-pane fade show active" id="nav-home-{{ with $class }}{{ . }}{{ end }}" role="tabpanel">
+        {{- if eq $show_preview true -}}
+            <div{{ with $id }} id="{{ . }}" {{ end }} class="bd-example{{ with $class }} {{ . }}{{ end }}">
+                {{- $input -}}
+            </div>
+        {{- end -}}
+    </div>
+
+    <div class="tab-pane fade" id="nav-profile-{{ with $class }}{{ . }}{{ end }}" role="tabpanel">
+        {{- if eq $show_markup true -}}
+            {{- $content := replaceRE `<svg class="bd-placeholder-img(?:-lg)?(?: *?bd-placeholder-img-lg)? ?(.*?)" .*?<\/svg>\n`
+            `<img src="..." class="$1" alt="...">` $input -}}
+            {{- $content = replaceRE ` (class=" *?")` "" $content -}}
+            {{- highlight (trim $content "\n") $lang "" -}}
+        {{- end -}}
+    </div>
+</div>
